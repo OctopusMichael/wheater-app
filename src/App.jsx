@@ -1,5 +1,6 @@
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
+import WeatherTable from "./components/WeatherTable";
 
 function App() {
   return (
@@ -9,8 +10,9 @@ function App() {
           <Header />
         </header>
         <main>
-          
           <SearchBar />
+          <WeatherTable />
+          
         </main>
       </div>
     </div>
