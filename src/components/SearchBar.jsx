@@ -34,7 +34,10 @@ const SearchBar = ({ onSelectedCity }) => {
   };
 
   return (
-    <div className="w-full flex justify-center mt-6 ">
+    <div className="w-full  flex flex-col items-center gap-5  mt-6 ">
+      <h1 className="text-neutral-0 text-4xl mt-10 font-bold">
+        How's the sky looking today?
+      </h1>
       <form
         className="w-[40%] max-w-3xl bg-white/30 backdrop-blur-md rounded-[32px] h-[64px] flex items-center justify-center px-6 gap-4"
         onSubmit={handleSearch}
