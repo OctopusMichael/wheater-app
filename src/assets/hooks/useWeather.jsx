@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 const useWeather = (latitude, longitude) => {
   const [weatherData, setWeatherData] = useState(null);
@@ -17,7 +17,7 @@ const useWeather = (latitude, longitude) => {
         setError(null);
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch weather data');
+        setError("Failed to fetch weather data");
       }
       setLoading(false);
     };

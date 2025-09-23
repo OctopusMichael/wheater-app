@@ -1,10 +1,13 @@
 import React from "react";
 import useWeather from "../assets/hooks/useWeather";
-const latitude = 40.7128; // Example: New York City latitude
-const longitude = -74.0060; // Example: New York City longitude
-
-const WeatherTable = () => {
-  const { weatherData, loading, error } = useWeather(latitude, longitude);
+/* const latitude = 40.7128; // Example: New York City latitude
+const longitude = -74.006; // Example: New York City longitude
+ */
+const WeatherTable = ({ city }) => {
+  const { weatherData, loading, error } = useWeather(
+    city.latitude,
+    city.longitude
+  );
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -28,7 +31,9 @@ const WeatherTable = () => {
              flex items-center justify-between p-6"
         >
           <div className="flex flex-col justify-center items-start text-neutral-0 ">
-            <h1 className="text-3xl">Berlin, Germany</h1>
+            <h1 className="text-3xl">
+              {city.name},{city.country}
+            </h1>
             <h1 className="text-neutral-300">thusday, Aug 5, 2025</h1>
           </div>
           <div className="flex justify-center items-center gap-4 p-4 text-neutral-0">
