@@ -10,8 +10,7 @@ const useWeather = (latitude, longitude) => {
       setLoading(true);
       try {
         // Fetch current + hourly + daily
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m,precipitation&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
-
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,weather_code,relative_humidity_2m,precipitation&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
         const response = await fetch(url);
         const data = await response.json();
 

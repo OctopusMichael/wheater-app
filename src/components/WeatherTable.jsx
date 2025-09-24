@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import useWeather from "../assets/hooks/useWeather";
+import WeatherSkeleton from "./WeatherSkeleton";
 /* const latitude = 40.7128; // Example: New York City latitude
 const longitude = -74.006; // Example: New York City longitude
  */
@@ -30,10 +31,46 @@ const WeatherTable = ({ city }) => {
 
     return "";
   }
+  const getHourlyForecast = () => {
+    if (!weatherData?.hourly) return [];
 
-  console.log(todayFormatted);
+    const now = new Date();
+    const targetHours = [15, 16, 17, 18, 19, 20, 21, 22]; // 3 PM to 10 PM
+    const forecast = [];
 
-  if (loading) return <p>Loading...</p>;
+    weatherData.hourly.time.forEach((timeStr, index) => {
+      const timeDate = new Date(timeStr);
+      const isToday = timeDate.toDateString() === now.toDateString();
+      const hour = timeDate.getHours();
+
+      if (isToday && targetHours.includes(hour)) {
+        forecast.push({
+          hour: hour,
+          time: formatHour(hour),
+          temperature: Math.round(weatherData.hourly.temperature_2m[index]),
+          weatherCode: weatherData.hourly.weather_code[index],
+          weatherIcon: mapWeatherCodeToIcon(
+            weatherData.hourly.weather_code[index]
+          ),
+        });
+      }
+    });
+
+    return forecast.sort((a, b) => a.hour - b.hour);
+  };
+
+  const formatHour = (hour) => {
+    if (hour === 12) return "12 PM";
+    if (hour > 12) return `${hour - 12} PM`;
+    return `${hour} AM`;
+  };
+
+  /* console.log(weatherData.hourly.time); */
+
+  if (loading && weatherData === null) {
+    return <WeatherSkeleton />;
+  }
+
   if (error) return <p>{error}</p>;
   if (!weatherData) return null;
 
@@ -120,105 +157,31 @@ const WeatherTable = ({ city }) => {
           </button>
         </div>
         <div className=" flex flex-col gap-2  text-neutral-0  ">
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
+          {getHourlyForecast().map((hourData, index) => (
+            <div
+              key={`${hourData.hour}-${index}`}
+              className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4"
+            >
+              <div className="flex gap-2 items-center">
+                <img
+                  className="w-[25px] h-[25px] object-contain"
+                  src={`images/${hourData.weatherIcon}`}
+                  alt="weather icon"
+                />
+                <h1>{hourData.time}</h1>
+              </div>
+              <h1>{hourData.temperature}°</h1>
             </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
+          ))}
+
+          {/* Show message if no hourly data available */}
+          {getHourlyForecast().length === 0 && (
+            <div className="flex justify-center items-center bg-neutral-700 rounded-2xl h-auto p-4">
+              <p className="text-neutral-300 text-sm">
+                No hourly data available
+              </p>
             </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
-          <div className="flex justify-between items-center bg-neutral-700 rounded-2xl h-auto p-4">
-            <div className="flex gap-2">
-              <img
-                className="w-[25px]"
-                src="images/icon-rain.webp"
-                alt="rain"
-              />
-              <h1>3 PM</h1>
-            </div>
-            <h1>20 °</h1>
-          </div>
+          )}
         </div>
       </div>
     </section>
