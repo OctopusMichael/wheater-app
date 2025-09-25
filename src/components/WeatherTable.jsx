@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import useWeather from "../assets/hooks/useWeather";
 import WeatherSkeleton from "./WeatherSkeleton";
+import DaysButton from "./DaysDropdown";
+import DaysDropdown from "./DaysDropdown";
 /* const latitude = 40.7128; // Example: New York City latitude
 const longitude = -74.006; // Example: New York City longitude
  */
 const WeatherTable = ({ city }) => {
+  const [selectedDay, setSelectedDay] = useState("Tuesday");
   const { weatherData, loading, error } = useWeather(
     city.latitude,
     city.longitude
@@ -80,6 +83,7 @@ const WeatherTable = ({ city }) => {
 
   return (
     <section className=" p-4 mt-6 flex justify-between  gap-10">
+      {/* Side left */}
       <div className=" text-white  mb-4 w-2/3 h-auto  flex flex-col justify-between">
         {/* Hero Section table */}
         <div
@@ -147,14 +151,19 @@ const WeatherTable = ({ city }) => {
           ))}
         </div>
       </div>
+      {/* Side right */}
       <div className=" bg-neutral-800 text-white  mb-4 w-1/3 h-auto rounded-3xl p-4 flex flex-col justify-around">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-neutral-0 font-bold">Hourly Forecast</h1>
 
-          <button className="rounded-[8px] bg-neutral-600  px-4 py-2 hover:bg-red-400 flex gap-2 items-center text-neutral-0 text-bold">
+          {/* <button className="rounded-[8px] bg-neutral-600  px-4 py-2 hover:bg-red-400 flex gap-2 items-center text-neutral-0 text-bold">
             Tuesday
             <img src="images/icon-dropdown.svg" alt="dropdown" />
-          </button>
+          </button> */}
+          <DaysDropdown
+            selectedDay={selectedDay}
+            onDaySelect={setSelectedDay}
+          />
         </div>
         <div className=" flex flex-col gap-2  text-neutral-0  ">
           {getHourlyForecast().map((hourData, index) => (
