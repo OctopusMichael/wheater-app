@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import useWeather from "../assets/hooks/useWeather";
 import WeatherSkeleton from "./WeatherSkeleton";
-import DaysButton from "./DaysDropdown";
-import DaysDropdown from "./DaysDropdown";
-/* const latitude = 40.7128; // Example: New York City latitude
-const longitude = -74.006; // Example: New York City longitude
- */
+
 const WeatherTable = ({ city }) => {
-  const [selectedDay, setSelectedDay] = useState("Tuesday");
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+
+  const [isOpen, setIsOpen] = useState(false);
   const { weatherData, loading, error } = useWeather(
     city.latitude,
     city.longitude
   );
-  console.log(weatherData);
 
   const today = new Date();
   const todayFormatted = today.toLocaleDateString("en-US", {
@@ -34,19 +31,26 @@ const WeatherTable = ({ city }) => {
 
     return "";
   }
-  const getHourlyForecast = () => {
+  const getHourlyForecast = (dayIndex = selectedDayIndex) => {
     if (!weatherData?.hourly) return [];
 
-    const now = new Date();
     const targetHours = [15, 16, 17, 18, 19, 20, 21, 22]; // 3 PM to 10 PM
     const forecast = [];
 
+    // Get the target date from daily data based on dayIndex
+    const targetDate = weatherData.daily?.[dayIndex]?.date;
+    if (!targetDate) return [];
+
+    // Create date object from the selected day's date
+    const targetDateObj = new Date(targetDate);
+    const targetDateString = targetDateObj.toDateString();
+
     weatherData.hourly.time.forEach((timeStr, index) => {
       const timeDate = new Date(timeStr);
-      const isToday = timeDate.toDateString() === now.toDateString();
+      const isTargetDay = timeDate.toDateString() === targetDateString;
       const hour = timeDate.getHours();
 
-      if (isToday && targetHours.includes(hour)) {
+      if (isTargetDay && targetHours.includes(hour)) {
         forecast.push({
           hour: hour,
           time: formatHour(hour),
@@ -62,13 +66,19 @@ const WeatherTable = ({ city }) => {
     return forecast.sort((a, b) => a.hour - b.hour);
   };
 
+  // ADD THIS: Helper function to get selected day name
+  const getSelectedDayName = () => {
+    if (!weatherData?.daily?.[selectedDayIndex]) return "";
+
+    const date = new Date(weatherData.daily[selectedDayIndex].date);
+    return date.toLocaleDateString("en-US", { weekday: "long" });
+  };
+
   const formatHour = (hour) => {
     if (hour === 12) return "12 PM";
     if (hour > 12) return `${hour - 12} PM`;
     return `${hour} AM`;
   };
-
-  /* console.log(weatherData.hourly.time); */
 
   if (loading && weatherData === null) {
     return <WeatherSkeleton />;
@@ -152,20 +162,53 @@ const WeatherTable = ({ city }) => {
         </div>
       </div>
       {/* Side right */}
-      <div className=" bg-neutral-800 text-white  mb-4 w-1/3 h-auto rounded-3xl p-4 flex flex-col justify-around">
-        <div className="flex justify-between items-center mb-2">
-          <h1 className="text-neutral-0 font-bold">Hourly Forecast</h1>
+      <div className="bg-neutral-800 text-white mb-4 w-1/3 h-auto rounded-3xl p-4 flex flex-col justify-around">
+        <div className="relative flex justify-between items-center mb-2">
+          <h1 className="text-neutral-0 font-bold text-2xl">Hourly Forecast</h1>
 
-          {/* <button className="rounded-[8px] bg-neutral-600  px-4 py-2 hover:bg-red-400 flex gap-2 items-center text-neutral-0 text-bold">
-            Tuesday
+          <button
+            onClick={() => {
+              setIsOpen(!isOpen);
+            }}
+            className="rounded-[8px] bg-neutral-600 px-4 py-2 hover:bg-red-400 flex gap-2 items-center text-neutral-0 text-bold"
+          >
+            {getSelectedDayName()} {/* This shows the selected day */}
             <img src="images/icon-dropdown.svg" alt="dropdown" />
-          </button> */}
-          <DaysDropdown
-            selectedDay={selectedDay}
-            onDaySelect={setSelectedDay}
-          />
+          </button>
+
+          {isOpen && (
+            <div className="w-3/5 absolute top-12 right-0 bg-neutral-800 border border-neutral-600/50 rounded-lg shadow- px-4 py-2 hover:bg-red-400 flex gap-2 items-center text-neutral-0 text-bold">
+              <ul className="w-full">
+                {weatherData.daily.slice(0, 7).map((day, index) => {
+                  const date = new Date(day.date);
+                  const today = new Date();
+                  const isToday = date.toDateString() === today.toDateString();
+                  const dayName = isToday
+                    ? today.toLocaleDateString("en-US", { weekday: "long" })
+                    : date.toLocaleDateString("en-US", { weekday: "long" });
+
+                  return (
+                    <li
+                      className={`hover:bg-neutral-600 cursor-pointer w-full p-2 rounded-md ${
+                        selectedDayIndex === index ? "bg-blue-500" : ""
+                      }`}
+                      key={index}
+                      onClick={() => {
+                        setSelectedDayIndex(index); // SELECT THE DAY
+                        setIsOpen(false); // CLOSE DROPDOWN
+                      }}
+                    >
+                      {dayName}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
-        <div className=" flex flex-col gap-2  text-neutral-0  ">
+
+        {/* REPLACE YOUR HOURLY FORECAST SECTION WITH THIS: */}
+        <div className="flex flex-col gap-2 text-neutral-0">
           {getHourlyForecast().map((hourData, index) => (
             <div
               key={`${hourData.hour}-${index}`}
@@ -187,7 +230,7 @@ const WeatherTable = ({ city }) => {
           {getHourlyForecast().length === 0 && (
             <div className="flex justify-center items-center bg-neutral-700 rounded-2xl h-auto p-4">
               <p className="text-neutral-300 text-sm">
-                No hourly data available
+                No hourly data available for {getSelectedDayName()}
               </p>
             </div>
           )}
